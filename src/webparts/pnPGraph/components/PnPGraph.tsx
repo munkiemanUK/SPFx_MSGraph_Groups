@@ -3,8 +3,10 @@ import styles from './PnPGraph.module.scss';
 import { IPnPGraphProps } from './IPnPGraphProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 
+import {sp} from '@pnp/sp/';
+
 import { Group } from '@microsoft/microsoft-graph-types';
-import { graph } from '@pnp/graph';
+import { graph } from '@pnp/graph/presets/all';
 import "@pnp/graph/groups";
 import "@pnp/graph/members";
 import {
@@ -16,6 +18,7 @@ import {
 
 export interface IState {
   groups: Group[];
+  members: any[];
 }
 
 const _columns: IColumn[] = [
@@ -51,12 +54,9 @@ export default class PnPGraph extends React.Component<IPnPGraphProps, IState, IC
     super(props);
 
     this.state = {
-      groups: null
+      groups: null,
+      members: null
     };
-  }
-
-  public checkGroupID = (column: IColumn) => { 
-    
   }
 
   public componentDidMount(): void {
@@ -65,6 +65,13 @@ export default class PnPGraph extends React.Component<IPnPGraphProps, IState, IC
         groups
       });
     });
+    this._getMembers("da85cb9b-8ae9-4ee9-aa51-a32d61bb08e2");
+  }
+
+  private async _getMembers(id: string) {   
+    const memberList = await graph.groups.getById(id).members();
+    console.log(memberList);
+    return memberList;
   }
 
   public render(): React.ReactElement<IPnPGraphProps> {
@@ -84,6 +91,7 @@ export default class PnPGraph extends React.Component<IPnPGraphProps, IState, IC
           ariaLabelForSelectionColumn="Toggle selection"
           ariaLabelForSelectAllCheckbox="Toggle selection for all items"
         />
+        
       </div>
     );
   }
